@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "description": "New Minecraft Bedrock Mod - Resource Pack v1.0.0",
+    "description": "New Minecraft Bedrock Mod - Resource Pack v1.0.1",
     "name": "New Minecraft Bedrock Mod RP",
     "uuid": "5b8d2e4a-9f1c-4e7b-8a3d-6c2e9f4a1b8d",
     "version": [
       1,
       0,
-      0
+      1
     ],
     "min_engine_version": [
       1,
@@ -23,7 +23,7 @@
       "version": [
         1,
         0,
-        0
+        1
       ]
     }
   ],
@@ -33,7 +33,7 @@
       "version": [
         1,
         0,
-        0
+        1
       ]
     }
   ]
