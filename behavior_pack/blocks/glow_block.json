@@ -1,5 +1,5 @@
 {
-  "format_version": "1.21.40",
+  "format_version": "26.13.0",
   "minecraft:block": {
     "description": {
       "identifier": "lars:glow_block",
