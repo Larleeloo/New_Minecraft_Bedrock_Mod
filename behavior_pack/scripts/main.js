@@ -36,33 +36,57 @@ function consumeBoneMeal(player) {
   } catch (_) {}
 }
 
-// Diagnostic: announce that the script booted at all.
-system.run(() => tell("script v1.0.2 loaded - try right-click sapling with bone meal"));
+// Announce on every player join so the user can see whether the script
+// even loaded (sendMessage at startup is silent if no players exist yet).
+try {
+  world.afterEvents.playerSpawn?.subscribe((event) => {
+    if (event.initialSpawn) tell("script v1.0.3 loaded");
+  });
+} catch (e) { tell(`sub err playerSpawn: ${e}`); }
 
-// Try every plausible interaction event - whichever fires we will see in chat,
-// then narrow down for v1.0.3.
+// AFTER playerInteractWithBlock - logs every interaction regardless of item
+// so we can see if the sapling itself suppresses events vs. only bone-meal.
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
-      const t = event.itemStack?.typeId ?? "(none)";
+      const t = event.itemStack?.typeId ?? "(empty)";
       const b = event.block?.typeId ?? "(no block)";
-      tell(`interactWithBlock first=${event.isFirstEvent} item=${t} block=${b}`);
+      tell(`AFTER iwb item=${t} block=${b}`);
       if (event.isFirstEvent === false) return;
       if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
       if (!event.block || event.block.typeId !== SAPLING_ID) return;
       if (growSapling(event.block) && event.player) consumeBoneMeal(event.player);
-    } catch (e) { tell(`interactWithBlock err: ${e}`); }
+    } catch (e) { tell(`AFTER iwb err: ${e}`); }
   });
-  tell("subscribed: playerInteractWithBlock");
-} catch (e) { tell(`sub err interactWithBlock: ${e}`); }
+} catch (e) { tell(`sub err AFTER iwb: ${e}`); }
 
+// BEFORE playerInteractWithBlock - fires before vanilla. If the after-event
+// is suppressed for our sapling, this should still fire.
+try {
+  world.beforeEvents.playerInteractWithBlock?.subscribe((event) => {
+    try {
+      const t = event.itemStack?.typeId ?? "(empty)";
+      const b = event.block?.typeId ?? "(no block)";
+      tell(`BEFORE iwb item=${t} block=${b}`);
+      if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
+      if (!event.block || event.block.typeId !== SAPLING_ID) return;
+      // beforeEvent handlers cannot mutate state directly - schedule it.
+      const block = event.block;
+      const player = event.player;
+      system.run(() => {
+        if (growSapling(block) && player) consumeBoneMeal(player);
+      });
+    } catch (e) { tell(`BEFORE iwb err: ${e}`); }
+  });
+} catch (e) { tell(`sub err BEFORE iwb: ${e}`); }
+
+// itemUseOn fires when an item is used while pointed at a block.
 try {
   world.afterEvents.itemUseOn?.subscribe((event) => {
     try {
       const t = event.itemStack?.typeId ?? "(none)";
-      const b = event.block?.typeId ?? event.getBlock?.()?.typeId ?? "(no block)";
+      const b = event.block?.typeId ?? "(no block)";
       tell(`itemUseOn item=${t} block=${b}`);
     } catch (e) { tell(`itemUseOn err: ${e}`); }
   });
-  tell("subscribed: itemUseOn");
 } catch (e) { tell(`sub err itemUseOn: ${e}`); }
