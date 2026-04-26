@@ -1,15 +1,25 @@
 import { world } from "@minecraft/server";
 
 const SAPLING_ID = "lars:neon_oak_sapling_red";
+const STRUCTURE_ID = "lars:bellas_birch";
 
-// Build a basic oak tree out of vanilla oak_log + oak_leaves with 4 fill
-// commands. Avoids depending on placefeature feature IDs (which are not
-// stable / publicly documented for vanilla) and works on every dimension.
+// If the .mcstructure file is at behavior_pack/structures/lars/bellas_birch.mcstructure,
+// it loads as structure ID "lars:bellas_birch" via /structure load.
+// loadStructure returns true on a successful load (successCount > 0).
+function loadStructure(dim, x, y, z) {
+  try {
+    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${x} ${y} ${z}`);
+    return r && r.successCount > 0;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Plain oak fallback: 4 fill+setblock commands. Used if the structure
+// file isn't present or fails to load (eg. ran above build height).
 function buildOakTree(dim, x, y, z) {
   const log = "minecraft:oak_log";
   const leaf = "minecraft:oak_leaves";
-  // Lay leaves first as a 5x5x2 slab + 3x3 cap + crown,
-  // then overwrite the center column with the trunk.
   try { dim.runCommand(`fill ${x - 2} ${y + 3} ${z - 2} ${x + 2} ${y + 4} ${z + 2} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`fill ${x - 1} ${y + 5} ${z - 1} ${x + 1} ${y + 5} ${z + 1} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`setblock ${x} ${y + 6} ${z} ${leaf}`); } catch (_) {}
@@ -21,7 +31,7 @@ function growSapling(block) {
   const dim = block.dimension;
   const { x, y, z } = block.location;
   try { block.setType("minecraft:air"); } catch (_) {}
-  buildOakTree(dim, x, y, z);
+  if (!loadStructure(dim, x, y, z)) buildOakTree(dim, x, y, z);
   return true;
 }
 
