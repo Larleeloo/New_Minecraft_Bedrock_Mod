@@ -1,5 +1,5 @@
 {
-  "format_version": 2,
+  "format_version": "84.0",
   "header": {
     "description": "New Minecraft Bedrock Mod - Behavior Pack v1.0.0",
     "name": "New Minecraft Bedrock Mod BP",
@@ -11,8 +11,8 @@
     ],
     "min_engine_version": [
       1,
-      21,
-      120
+      26,
+      13
     ]
   },
   "modules": [
