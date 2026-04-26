@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
 const SAPLING_ID = "lars:neon_oak_sapling_red";
 const STRUCTURE_ID = "lars:bellas_birch";
@@ -10,10 +10,8 @@ function tell(msg) {
 function loadStructure(dim, x, y, z) {
   try {
     const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${x} ${y} ${z}`);
-    tell(`structure load -> ${JSON.stringify(r)}`);
     return r && r.successCount > 0;
-  } catch (e) {
-    tell(`structure load err: ${e}`);
+  } catch (_) {
     return false;
   }
 }
@@ -25,7 +23,6 @@ function buildOakTree(dim, x, y, z) {
   try { dim.runCommand(`fill ${x - 1} ${y + 5} ${z - 1} ${x + 1} ${y + 5} ${z + 1} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`setblock ${x} ${y + 6} ${z} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`fill ${x} ${y} ${z} ${x} ${y + 4} ${z} ${log}`); } catch (_) {}
-  tell("fallback oak built");
 }
 
 function growSapling(block) {
@@ -54,17 +51,33 @@ function consumeBoneMeal(player) {
   } catch (_) {}
 }
 
+// AFTER event does NOT fire on our sapling (confirmed in v1.0.5 testing) -
+// but it does fire on every other block, so we keep the subscription as
+// a no-op safety net in case Mojang fixes the suppression in a future build.
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
-      const t = event.itemStack?.typeId ?? "(empty)";
-      const b = event.block?.typeId ?? "(no block)";
-      tell(`v1.0.5 iwb item=${t} block=${b}`);
       if (event.isFirstEvent === false) return;
       if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
       if (!event.block || event.block.typeId !== SAPLING_ID) return;
       if (growSapling(event.block) && event.player) consumeBoneMeal(event.player);
-    } catch (e) { tell(`iwb handler err: ${e}`); }
+    } catch (_) {}
   });
-  tell("v1.0.5 subscribed iwb");
-} catch (e) { tell(`v1.0.5 sub err: ${e}`); }
+} catch (_) {}
+
+// BEFORE event IS the one that fires for our sapling. Schedule the world
+// mutations onto the next tick via system.run because before-event handlers
+// are not allowed to modify world state synchronously.
+try {
+  world.beforeEvents.playerInteractWithBlock?.subscribe((event) => {
+    try {
+      if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
+      if (!event.block || event.block.typeId !== SAPLING_ID) return;
+      const block = event.block;
+      const player = event.player;
+      system.run(() => {
+        if (growSapling(block) && player) consumeBoneMeal(player);
+      });
+    } catch (_) {}
+  });
+} catch (_) {}
