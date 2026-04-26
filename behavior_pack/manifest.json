@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "description": "New Minecraft Bedrock Mod - Behavior Pack v1.0.0",
+    "description": "New Minecraft Bedrock Mod - Behavior Pack v1.0.1",
     "name": "New Minecraft Bedrock Mod BP",
     "uuid": "8a1c4e90-2f3b-4d7a-9e6c-1b5d8f2a9e4c",
     "version": [
       1,
       0,
-      0
+      1
     ],
     "min_engine_version": [
       1,
@@ -17,13 +17,25 @@
   },
   "modules": [
     {
-      "description": "Behavior data for New Minecraft Bedrock Mod.",
+      "description": "Block + behavior data.",
       "type": "data",
       "uuid": "7d3e9f12-4a8b-4c5d-9e6f-2a1b3c4d5e6f",
       "version": [
         1,
         0,
-        0
+        1
+      ]
+    },
+    {
+      "description": "Sapling growth scripts.",
+      "type": "script",
+      "language": "javascript",
+      "entry": "scripts/main.js",
+      "uuid": "9f4c2d1e-7a3b-4e5d-8c6f-2b1a9d3e7c4f",
+      "version": [
+        1,
+        0,
+        1
       ]
     }
   ],
@@ -35,6 +47,10 @@
         0,
         0
       ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.0.0"
     }
   ]
 }
