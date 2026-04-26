@@ -1,0 +1,40 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "New Minecraft Bedrock Mod - Resource Pack v1.0.0",
+    "name": "New Minecraft Bedrock Mod RP",
+    "uuid": "5b8d2e4a-9f1c-4e7b-8a3d-6c2e9f4a1b8d",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      120
+    ]
+  },
+  "modules": [
+    {
+      "description": "Resources for New Minecraft Bedrock Mod.",
+      "type": "resources",
+      "uuid": "3c7e1d5a-8b2f-4d9e-7c5a-1e8b3f9d2c4a",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "8a1c4e90-2f3b-4d7a-9e6c-1b5d8f2a9e4c",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

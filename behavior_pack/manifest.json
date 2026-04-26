@@ -1,0 +1,40 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "New Minecraft Bedrock Mod - Behavior Pack v1.0.0",
+    "name": "New Minecraft Bedrock Mod BP",
+    "uuid": "8a1c4e90-2f3b-4d7a-9e6c-1b5d8f2a9e4c",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      120
+    ]
+  },
+  "modules": [
+    {
+      "description": "Behavior data for New Minecraft Bedrock Mod.",
+      "type": "data",
+      "uuid": "7d3e9f12-4a8b-4c5d-9e6f-2a1b3c4d5e6f",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "5b8d2e4a-9f1c-4e7b-8a3d-6c2e9f4a1b8d",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
