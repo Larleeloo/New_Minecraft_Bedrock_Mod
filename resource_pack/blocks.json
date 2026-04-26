@@ -2,5 +2,8 @@
   "format_version": "1.19.30",
   "lars:glow_block": {
     "sound": "stone"
+  },
+  "lars:neon_oak_sapling_red": {
+    "sound": "grass"
   }
 }

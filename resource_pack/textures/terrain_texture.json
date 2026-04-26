@@ -6,6 +6,9 @@
   "texture_data": {
     "lars_glow_block": {
       "textures": "textures/blocks/lars_glow_block"
+    },
+    "neon_oak_sapling_red": {
+      "textures": "textures/blocks/neon_oak_sapling_red"
     }
   }
 }
