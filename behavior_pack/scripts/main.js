@@ -3,20 +3,21 @@ import { world } from "@minecraft/server";
 const SAPLING_ID = "lars:neon_oak_sapling_red";
 const STRUCTURE_ID = "lars:bellas_birch";
 
-// If the .mcstructure file is at behavior_pack/structures/lars/bellas_birch.mcstructure,
-// it loads as structure ID "lars:bellas_birch" via /structure load.
-// loadStructure returns true on a successful load (successCount > 0).
+function tell(msg) {
+  try { world.sendMessage(`[lars] ${msg}`); } catch (_) {}
+}
+
 function loadStructure(dim, x, y, z) {
   try {
     const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${x} ${y} ${z}`);
+    tell(`structure load -> ${JSON.stringify(r)}`);
     return r && r.successCount > 0;
-  } catch (_) {
+  } catch (e) {
+    tell(`structure load err: ${e}`);
     return false;
   }
 }
 
-// Plain oak fallback: 4 fill+setblock commands. Used if the structure
-// file isn't present or fails to load (eg. ran above build height).
 function buildOakTree(dim, x, y, z) {
   const log = "minecraft:oak_log";
   const leaf = "minecraft:oak_leaves";
@@ -24,6 +25,7 @@ function buildOakTree(dim, x, y, z) {
   try { dim.runCommand(`fill ${x - 1} ${y + 5} ${z - 1} ${x + 1} ${y + 5} ${z + 1} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`setblock ${x} ${y + 6} ${z} ${leaf}`); } catch (_) {}
   try { dim.runCommand(`fill ${x} ${y} ${z} ${x} ${y + 4} ${z} ${log}`); } catch (_) {}
+  tell("fallback oak built");
 }
 
 function growSapling(block) {
@@ -55,10 +57,14 @@ function consumeBoneMeal(player) {
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
+      const t = event.itemStack?.typeId ?? "(empty)";
+      const b = event.block?.typeId ?? "(no block)";
+      tell(`v1.0.5 iwb item=${t} block=${b}`);
       if (event.isFirstEvent === false) return;
       if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
       if (!event.block || event.block.typeId !== SAPLING_ID) return;
       if (growSapling(event.block) && event.player) consumeBoneMeal(event.player);
-    } catch (_) {}
+    } catch (e) { tell(`iwb handler err: ${e}`); }
   });
-} catch (_) {}
+  tell("v1.0.5 subscribed iwb");
+} catch (e) { tell(`v1.0.5 sub err: ${e}`); }
