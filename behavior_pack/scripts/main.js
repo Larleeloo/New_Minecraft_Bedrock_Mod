@@ -1,21 +1,37 @@
-import { world, system } from "@minecraft/server";
+import { world } from "@minecraft/server";
 
 const SAPLING_ID = "lars:neon_oak_sapling_red";
-const TREE_FEATURE = "minecraft:oak_tree_feature";
+const STRUCTURE_ID = "lars:bellas_birch";
 
-function tell(msg) {
-  try { world.sendMessage(`[lars] ${msg}`); } catch (_) {}
+// If the .mcstructure file is at behavior_pack/structures/lars/bellas_birch.mcstructure,
+// it loads as structure ID "lars:bellas_birch" via /structure load.
+// loadStructure returns true on a successful load (successCount > 0).
+function loadStructure(dim, x, y, z) {
+  try {
+    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${x} ${y} ${z}`);
+    return r && r.successCount > 0;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Plain oak fallback: 4 fill+setblock commands. Used if the structure
+// file isn't present or fails to load (eg. ran above build height).
+function buildOakTree(dim, x, y, z) {
+  const log = "minecraft:oak_log";
+  const leaf = "minecraft:oak_leaves";
+  try { dim.runCommand(`fill ${x - 2} ${y + 3} ${z - 2} ${x + 2} ${y + 4} ${z + 2} ${leaf}`); } catch (_) {}
+  try { dim.runCommand(`fill ${x - 1} ${y + 5} ${z - 1} ${x + 1} ${y + 5} ${z + 1} ${leaf}`); } catch (_) {}
+  try { dim.runCommand(`setblock ${x} ${y + 6} ${z} ${leaf}`); } catch (_) {}
+  try { dim.runCommand(`fill ${x} ${y} ${z} ${x} ${y + 4} ${z} ${log}`); } catch (_) {}
 }
 
 function growSapling(block) {
   if (!block || block.typeId !== SAPLING_ID) return false;
   const dim = block.dimension;
   const { x, y, z } = block.location;
-  try { block.setType("minecraft:air"); } catch (e) { tell(`setType err: ${e}`); }
-  try {
-    const r = dim.runCommand(`placefeature ${TREE_FEATURE} ${x} ${y} ${z}`);
-    tell(`placefeature result: ${JSON.stringify(r)}`);
-  } catch (e) { tell(`placefeature err: ${e}`); }
+  try { block.setType("minecraft:air"); } catch (_) {}
+  if (!loadStructure(dim, x, y, z)) buildOakTree(dim, x, y, z);
   return true;
 }
 
@@ -36,57 +52,13 @@ function consumeBoneMeal(player) {
   } catch (_) {}
 }
 
-// Announce on every player join so the user can see whether the script
-// even loaded (sendMessage at startup is silent if no players exist yet).
-try {
-  world.afterEvents.playerSpawn?.subscribe((event) => {
-    if (event.initialSpawn) tell("script v1.0.3 loaded");
-  });
-} catch (e) { tell(`sub err playerSpawn: ${e}`); }
-
-// AFTER playerInteractWithBlock - logs every interaction regardless of item
-// so we can see if the sapling itself suppresses events vs. only bone-meal.
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
-      const t = event.itemStack?.typeId ?? "(empty)";
-      const b = event.block?.typeId ?? "(no block)";
-      tell(`AFTER iwb item=${t} block=${b}`);
       if (event.isFirstEvent === false) return;
       if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
       if (!event.block || event.block.typeId !== SAPLING_ID) return;
       if (growSapling(event.block) && event.player) consumeBoneMeal(event.player);
-    } catch (e) { tell(`AFTER iwb err: ${e}`); }
+    } catch (_) {}
   });
-} catch (e) { tell(`sub err AFTER iwb: ${e}`); }
-
-// BEFORE playerInteractWithBlock - fires before vanilla. If the after-event
-// is suppressed for our sapling, this should still fire.
-try {
-  world.beforeEvents.playerInteractWithBlock?.subscribe((event) => {
-    try {
-      const t = event.itemStack?.typeId ?? "(empty)";
-      const b = event.block?.typeId ?? "(no block)";
-      tell(`BEFORE iwb item=${t} block=${b}`);
-      if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
-      if (!event.block || event.block.typeId !== SAPLING_ID) return;
-      // beforeEvent handlers cannot mutate state directly - schedule it.
-      const block = event.block;
-      const player = event.player;
-      system.run(() => {
-        if (growSapling(block) && player) consumeBoneMeal(player);
-      });
-    } catch (e) { tell(`BEFORE iwb err: ${e}`); }
-  });
-} catch (e) { tell(`sub err BEFORE iwb: ${e}`); }
-
-// itemUseOn fires when an item is used while pointed at a block.
-try {
-  world.afterEvents.itemUseOn?.subscribe((event) => {
-    try {
-      const t = event.itemStack?.typeId ?? "(none)";
-      const b = event.block?.typeId ?? "(no block)";
-      tell(`itemUseOn item=${t} block=${b}`);
-    } catch (e) { tell(`itemUseOn err: ${e}`); }
-  });
-} catch (e) { tell(`sub err itemUseOn: ${e}`); }
+} catch (_) {}
