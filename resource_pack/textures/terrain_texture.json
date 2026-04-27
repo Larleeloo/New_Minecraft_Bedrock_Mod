@@ -9,6 +9,18 @@
     },
     "neon_oak_sapling_red": {
       "textures": "textures/blocks/neon_oak_sapling_red"
+    },
+    "magic_oak_log": {
+      "textures": "textures/blocks/magic_oak_log"
+    },
+    "magic_oak_log_top": {
+      "textures": "textures/blocks/magic_oak_log_top"
+    },
+    "magic_oak_leaves": {
+      "textures": "textures/blocks/magic_oak_leaves"
+    },
+    "magic_oak_leaf_litter": {
+      "textures": "textures/blocks/magic_oak_leaf_litter"
     }
   }
 }

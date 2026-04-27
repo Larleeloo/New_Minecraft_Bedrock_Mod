@@ -1,0 +1,30 @@
+[
+  {
+    "flipbook_texture": "textures/blocks/magic_oak_log",
+    "atlas_tile": "magic_oak_log",
+    "ticks_per_frame": 6,
+    "replicate": 1,
+    "blend_frames": true
+  },
+  {
+    "flipbook_texture": "textures/blocks/magic_oak_log_top",
+    "atlas_tile": "magic_oak_log_top",
+    "ticks_per_frame": 6,
+    "replicate": 1,
+    "blend_frames": true
+  },
+  {
+    "flipbook_texture": "textures/blocks/magic_oak_leaves",
+    "atlas_tile": "magic_oak_leaves",
+    "ticks_per_frame": 6,
+    "replicate": 1,
+    "blend_frames": true
+  },
+  {
+    "flipbook_texture": "textures/blocks/magic_oak_leaf_litter",
+    "atlas_tile": "magic_oak_leaf_litter",
+    "ticks_per_frame": 6,
+    "replicate": 1,
+    "blend_frames": true
+  }
+]

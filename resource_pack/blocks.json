@@ -5,5 +5,14 @@
   },
   "lars:neon_oak_sapling_red": {
     "sound": "grass"
+  },
+  "lars:magic_oak_log": {
+    "sound": "wood"
+  },
+  "lars:magic_oak_leaves": {
+    "sound": "grass"
+  },
+  "lars:magic_oak_leaf_litter": {
+    "sound": "grass"
   }
 }

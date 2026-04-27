@@ -1,0 +1,68 @@
+{
+  "format_version": "1.26.10",
+  "minecraft:block": {
+    "description": {
+      "identifier": "lars:magic_oak_log",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": ["minecraft:block_face"]
+        }
+      }
+    },
+    "components": {
+      "minecraft:light_emission": 8,
+      "minecraft:light_dampening": 15,
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 2.0
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 2
+      },
+      "minecraft:map_color": {
+        "color": "#6B4F2A"
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "magic_oak_log",
+          "render_method": "opaque",
+          "ambient_occlusion": 1,
+          "face_dimming": true
+        },
+        "up": {
+          "texture": "magic_oak_log_top",
+          "render_method": "opaque",
+          "ambient_occlusion": 1,
+          "face_dimming": true
+        },
+        "down": {
+          "texture": "magic_oak_log_top",
+          "render_method": "opaque",
+          "ambient_occlusion": 1,
+          "face_dimming": true
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'east' || q.block_state('minecraft:block_face') == 'west'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 0, 90]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'north' || q.block_state('minecraft:block_face') == 'south'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [90, 0, 0]
+          }
+        }
+      }
+    ]
+  }
+}
