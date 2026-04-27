@@ -1,70 +1,27 @@
 import { world, system } from "@minecraft/server";
 
 const SAPLING_ID = "lars:neon_oak_sapling_red";
-const STRUCTURE_ID = "lars:bellas_birch";
+const STRUCTURE_ID = "lars:bellas_birch_edit";
 
-// Bounding box of the structure measured from the load anchor (the sapling
-// block). Adjust to match the actual .mcstructure dimensions so the
-// air-clearance check covers the right volume. Defaults assume a tree
-// roughly 7 wide / 7 deep / 15 tall, anchored at trunk-base corner.
-const STRUCTURE_MIN_X = 0;
-const STRUCTURE_MAX_X = 6;
-const STRUCTURE_MIN_Z = 0;
-const STRUCTURE_MAX_Z = 6;
-const STRUCTURE_MIN_Y = 0;
-const STRUCTURE_MAX_Y = 14;
-
-// Optional per-axis offset applied to the load position. Use this if you
-// keep the structure centered on its own block instead of re-saving with
-// the trunk at the (0, 0, 0) corner. Example for a 7-wide tree centered
-// on the structure block: { x: -3, y: 0, z: -3 }.
-const LOAD_OFFSET = { x: 0, y: 0, z: 0 };
+// bellas_birch_edit is 15w x 25h x 15d with the trunk anchored at the
+// bottom-center of the structure. /structure load places the structure
+// with its (0, 0, 0) corner at the load position, so we shift back by
+// half the X/Z extent to put the trunk on the sapling.
+const LOAD_OFFSET = { x: -7, y: 0, z: -7 };
 
 // Bone meal succeeds ~1 in 5 attempts; bone meal is consumed every time.
 const BONEMEAL_GROW_CHANCE = 0.2;
 
 // Natural growth: every 30s scan a 33x11x33 box around each player and
-// give each detected sapling a ~10% chance to mature. Cheap and bounded.
+// give any neon sapling a ~10% chance to mature.
 const NATURAL_INTERVAL_TICKS = 600;
 const NATURAL_GROW_CHANCE = 0.1;
 const NATURAL_SAMPLES_PER_PLAYER = 6;
 
-function isAreaClear(dim, ox, oy, oz) {
-  for (let x = ox + STRUCTURE_MIN_X; x <= ox + STRUCTURE_MAX_X; x++) {
-    for (let y = oy + STRUCTURE_MIN_Y; y <= oy + STRUCTURE_MAX_Y; y++) {
-      for (let z = oz + STRUCTURE_MIN_Z; z <= oz + STRUCTURE_MAX_Z; z++) {
-        try {
-          const b = dim.getBlock({ x, y, z });
-          if (!b) return false;
-          // Allow air and the sapling itself (we are about to clear it).
-          if (b.typeId === "minecraft:air") continue;
-          if (b.typeId === SAPLING_ID && x === ox && y === oy && z === oz) continue;
-          return false;
-        } catch (_) {
-          return false;
-        }
-      }
-    }
-  }
-  return true;
-}
-
-function loadStructure(dim, x, y, z) {
-  const lx = x + LOAD_OFFSET.x;
-  const ly = y + LOAD_OFFSET.y;
-  const lz = z + LOAD_OFFSET.z;
-  if (!isAreaClear(dim, lx, ly, lz)) return false;
-  try {
-    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${lx} ${ly} ${lz}`);
-    return r && r.successCount > 0;
-  } catch (_) {
-    return false;
-  }
-}
-
-// Plain oak fallback (5w x 7h x 5d). Same air-only rule as the structure
-// path so we never trample an existing build.
-function buildOakTree(dim, x, y, z) {
+// Plain oak fallback footprint - used to bounds-check before /fill calls
+// (which DO overwrite existing blocks; the structure path no longer needs
+// this since the .mcstructure uses structure_void in empty slots).
+function isOakAreaClear(dim, x, y, z) {
   for (let dx = -2; dx <= 2; dx++) {
     for (let dy = 0; dy <= 6; dy++) {
       for (let dz = -2; dz <= 2; dz++) {
@@ -78,6 +35,23 @@ function buildOakTree(dim, x, y, z) {
       }
     }
   }
+  return true;
+}
+
+function loadStructure(dim, x, y, z) {
+  const lx = x + LOAD_OFFSET.x;
+  const ly = y + LOAD_OFFSET.y;
+  const lz = z + LOAD_OFFSET.z;
+  try {
+    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${lx} ${ly} ${lz}`);
+    return r && r.successCount > 0;
+  } catch (_) {
+    return false;
+  }
+}
+
+function buildOakTree(dim, x, y, z) {
+  if (!isOakAreaClear(dim, x, y, z)) return false;
   const log = "minecraft:oak_log";
   const leaf = "minecraft:oak_leaves";
   try { dim.runCommand(`fill ${x - 2} ${y + 3} ${z - 2} ${x + 2} ${y + 4} ${z + 2} ${leaf}`); } catch (_) {}
@@ -119,8 +93,8 @@ function consumeBoneMeal(player) {
   } catch (_) {}
 }
 
-// AFTER event does not fire on our sapling (custom block with no collision),
-// kept as a safety net in case Mojang fixes that.
+// AFTER event does not fire on our sapling (no collision), kept as a
+// safety net in case Mojang fixes that in a future build.
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
@@ -149,9 +123,7 @@ try {
   });
 } catch (_) {}
 
-// Natural growth scan: every NATURAL_INTERVAL_TICKS, look at a few random
-// positions near each player; any sapling found has a NATURAL_GROW_CHANCE
-// chance to mature this scan. Pure poll - no per-block ticking required.
+// Natural growth: poll near every player on a long interval.
 try {
   system.runInterval(() => {
     try {
