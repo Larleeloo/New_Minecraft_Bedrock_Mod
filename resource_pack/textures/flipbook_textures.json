@@ -18,13 +18,13 @@
     "atlas_tile": "magic_oak_leaves",
     "ticks_per_frame": 6,
     "replicate": 1,
-    "blend_frames": true
+    "blend_frames": false
   },
   {
     "flipbook_texture": "textures/blocks/magic_oak_leaf_litter",
     "atlas_tile": "magic_oak_leaf_litter",
     "ticks_per_frame": 6,
     "replicate": 1,
-    "blend_frames": true
+    "blend_frames": false
   }
 ]
