@@ -3,16 +3,15 @@ import { world, system } from "@minecraft/server";
 const SAPLING_ID = "lars:neon_oak_sapling_red";
 const STRUCTURE_ID = "lars:bellas_birch_edit";
 
-// bellas_birch_edit is 15w x 25h x 15d with the trunk anchored at the
-// bottom-centre. /structure load places the corner at the load position,
-// so we shift back by half the X/Z extent.
+// bellas_birch_edit is 15x25x15 with the trunk anchored at bottom-centre.
+// /structure load places the corner at the load position, so we shift back
+// by half the X/Z extent. The structure is square in X/Z, so a centred
+// trunk stays on the sapling under any 90-degree rotation.
 const LOAD_OFFSET = { x: -7, y: 0, z: -7 };
 
-// Bounding box of the actual TREE inside the structure (the canopy + trunk),
-// measured from the sapling block. structure_void cells around it mean the
-// loader won't trample existing blocks, but we still gate growth on this
-// volume being clear so trees don't half-grow into walls. Roughly 10x15x10
-// per the user's measurement.
+// Tree-only bounding box (canopy + trunk), measured from the sapling.
+// The full .mcstructure is larger but mostly structure_void, so this is
+// what actually needs to be clear for the tree to fit.
 const TREE_MIN_X = -5;
 const TREE_MAX_X = 4;
 const TREE_MIN_Y = 0;
@@ -20,22 +19,60 @@ const TREE_MAX_Y = 14;
 const TREE_MIN_Z = -5;
 const TREE_MAX_Z = 4;
 
+const ROTATIONS = ["0_degrees", "90_degrees", "180_degrees", "270_degrees"];
+
 const BONEMEAL_GROW_CHANCE = 0.2;
 
 const NATURAL_INTERVAL_TICKS = 600;
 const NATURAL_GROW_CHANCE = 0.1;
 const NATURAL_SAMPLES_PER_PLAYER = 6;
 
-function isAreaClear(dim, x, y, z, minX, maxX, minY, maxY, minZ, maxZ) {
-  for (let dx = minX; dx <= maxX; dx++) {
-    for (let dy = minY; dy <= maxY; dy++) {
-      for (let dz = minZ; dz <= maxZ; dz++) {
+// Allow the tree to grow through air, our own sapling, and any vanilla
+// plant/leaf/flower/crop/snow-layer block. Solid lookalikes like
+// grass_block remain blockers.
+function canGrowThrough(block) {
+  if (!block) return false;
+  const id = block.typeId;
+  if (id === "minecraft:air") return true;
+  if (id === SAPLING_ID) return true;
+  if (id === "minecraft:grass_block") return false;
+  if (id === "minecraft:mycelium") return false;
+  if (id === "minecraft:podzol") return false;
+  if (id === "minecraft:dirt") return false;
+  try {
+    if (block.hasTag("plant")) return true;
+    if (block.hasTag("crop")) return true;
+  } catch (_) {}
+  return (
+    id.includes("leaves") ||
+    id.includes("sapling") ||
+    id.includes("flower") ||
+    id.includes("fern") ||
+    id.includes("vine") ||
+    id.includes("bush") ||
+    id.includes("mushroom") ||
+    id.includes("seedling") ||
+    id.includes("crop") ||
+    id.includes("sprout") ||
+    id.includes("tallgrass") ||
+    id === "minecraft:short_grass" ||
+    id === "minecraft:tall_grass" ||
+    id === "minecraft:wheat" ||
+    id === "minecraft:carrots" ||
+    id === "minecraft:potatoes" ||
+    id === "minecraft:beetroot" ||
+    id === "minecraft:snow_layer" ||
+    id === "minecraft:dandelion"
+  );
+}
+
+function isAreaClear(dim, x, y, z) {
+  for (let dx = TREE_MIN_X; dx <= TREE_MAX_X; dx++) {
+    for (let dy = TREE_MIN_Y; dy <= TREE_MAX_Y; dy++) {
+      for (let dz = TREE_MIN_Z; dz <= TREE_MAX_Z; dz++) {
         try {
           const b = dim.getBlock({ x: x + dx, y: y + dy, z: z + dz });
-          if (!b) return false;
-          if (b.typeId === "minecraft:air") continue;
-          if (b.typeId === SAPLING_ID && dx === 0 && dy === 0 && dz === 0) continue;
-          return false;
+          if (!canGrowThrough(b)) return false;
         } catch (_) {
           return false;
         }
@@ -46,44 +83,26 @@ function isAreaClear(dim, x, y, z, minX, maxX, minY, maxY, minZ, maxZ) {
 }
 
 function loadStructure(dim, x, y, z) {
-  if (!isAreaClear(dim, x, y, z, TREE_MIN_X, TREE_MAX_X, TREE_MIN_Y, TREE_MAX_Y, TREE_MIN_Z, TREE_MAX_Z)) {
-    return false;
-  }
+  if (!isAreaClear(dim, x, y, z)) return false;
   const lx = x + LOAD_OFFSET.x;
   const ly = y + LOAD_OFFSET.y;
   const lz = z + LOAD_OFFSET.z;
+  const rotation = ROTATIONS[Math.floor(Math.random() * ROTATIONS.length)];
   try {
-    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${lx} ${ly} ${lz}`);
+    const r = dim.runCommand(`structure load ${STRUCTURE_ID} ${lx} ${ly} ${lz} ${rotation}`);
     return r && r.successCount > 0;
   } catch (_) {
     return false;
   }
 }
 
-function buildOakTree(dim, x, y, z) {
-  if (!isAreaClear(dim, x, y, z, -2, 2, 0, 6, -2, 2)) return false;
-  const log = "minecraft:oak_log";
-  const leaf = "minecraft:oak_leaves";
-  try { dim.runCommand(`fill ${x - 2} ${y + 3} ${z - 2} ${x + 2} ${y + 4} ${z + 2} ${leaf}`); } catch (_) {}
-  try { dim.runCommand(`fill ${x - 1} ${y + 5} ${z - 1} ${x + 1} ${y + 5} ${z + 1} ${leaf}`); } catch (_) {}
-  try { dim.runCommand(`setblock ${x} ${y + 6} ${z} ${leaf}`); } catch (_) {}
-  try { dim.runCommand(`fill ${x} ${y} ${z} ${x} ${y + 4} ${z} ${log}`); } catch (_) {}
-  return true;
-}
-
 function growSapling(block) {
   if (!block || block.typeId !== SAPLING_ID) return false;
   const dim = block.dimension;
   const { x, y, z } = block.location;
-  if (loadStructure(dim, x, y, z)) {
-    try { block.setType("minecraft:air"); } catch (_) {}
-    return true;
-  }
-  if (buildOakTree(dim, x, y, z)) {
-    try { block.setType("minecraft:air"); } catch (_) {}
-    return true;
-  }
-  return false;
+  if (!loadStructure(dim, x, y, z)) return false;
+  try { block.setType("minecraft:air"); } catch (_) {}
+  return true;
 }
 
 function consumeBoneMeal(player) {
@@ -103,6 +122,8 @@ function consumeBoneMeal(player) {
   } catch (_) {}
 }
 
+// AFTER event does not fire on our sapling (no collision), kept as a
+// safety net in case Mojang fixes that in a future build.
 try {
   world.afterEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
@@ -115,9 +136,14 @@ try {
   });
 } catch (_) {}
 
+// BEFORE event is the actual bone-meal -> grow path for our sapling.
+// isFirstEvent must be filtered here too - holding right-click otherwise
+// fires the handler every tick and a single 0.2 roll inside a few-tick
+// hold turns 1-in-5 odds into "grows on the very first click".
 try {
   world.beforeEvents.playerInteractWithBlock?.subscribe((event) => {
     try {
+      if (event.isFirstEvent === false) return;
       if (!event.itemStack || event.itemStack.typeId !== "minecraft:bone_meal") return;
       if (!event.block || event.block.typeId !== SAPLING_ID) return;
       const block = event.block;
