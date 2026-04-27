@@ -1,2 +1,5 @@
 tile.lars:glow_block.name=Glow Block
 tile.lars:neon_oak_sapling_red.name=Red Neon Oak Sapling
+tile.lars:magic_oak_log.name=Magic Oak Log
+tile.lars:magic_oak_leaves.name=Magic Oak Leaves
+tile.lars:magic_oak_leaf_litter.name=Magic Oak Leaf Litter

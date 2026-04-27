@@ -1,0 +1,33 @@
+{
+  "format_version": "1.26.10",
+  "minecraft:block": {
+    "description": {
+      "identifier": "lars:magic_oak_leaves",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:light_emission": 8,
+      "minecraft:light_dampening": 1,
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.2
+      },
+      "minecraft:map_color": {
+        "color": "#9F7BFF"
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "magic_oak_leaves",
+          "render_method": "alpha_test",
+          "ambient_occlusion": 1,
+          "face_dimming": true
+        }
+      }
+    }
+  }
+}

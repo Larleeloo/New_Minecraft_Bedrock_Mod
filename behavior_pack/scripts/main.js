@@ -3,6 +3,19 @@ import { world, system } from "@minecraft/server";
 const SAPLING_ID = "lars:neon_oak_sapling_red";
 const STRUCTURE_ID = "lars:bellas_birch_edit";
 
+const MAGIC_LEAVES_ID = "lars:magic_oak_leaves";
+const MAGIC_PARTICLE_ID = "lars:magic_oak_particle";
+
+// Drift particles below magic oak leaves. Sample random blocks in a small
+// box around each player; if the block is leaves and the cell below it is
+// passable, emit one particle there. Keeps it visually subtle and avoids
+// scanning every leaf block every tick.
+const PARTICLE_INTERVAL_TICKS = 10;
+const PARTICLE_SAMPLES_PER_PLAYER = 24;
+const PARTICLE_RADIUS_XZ = 12;
+const PARTICLE_RADIUS_Y = 6;
+const PARTICLE_SPAWN_CHANCE = 0.5;
+
 // bellas_birch_edit is 15x25x15 with the trunk anchored at bottom-centre.
 // /structure load places the corner at the load position, so we shift back
 // by half the X/Z extent. The structure is square in X/Z, so a centred
@@ -176,4 +189,46 @@ try {
       }
     } catch (_) {}
   }, NATURAL_INTERVAL_TICKS);
+} catch (_) {}
+
+function isPassableBelowLeaves(block) {
+  if (!block) return false;
+  const id = block.typeId;
+  if (id === "minecraft:air") return true;
+  if (id === "minecraft:cave_air") return true;
+  if (id === "minecraft:void_air") return true;
+  if (id === MAGIC_LEAVES_ID) return true;
+  return false;
+}
+
+try {
+  system.runInterval(() => {
+    try {
+      for (const player of world.getAllPlayers()) {
+        const dim = player.dimension;
+        const px = Math.floor(player.location.x);
+        const py = Math.floor(player.location.y);
+        const pz = Math.floor(player.location.z);
+        for (let i = 0; i < PARTICLE_SAMPLES_PER_PLAYER; i++) {
+          const dx = Math.floor(Math.random() * (PARTICLE_RADIUS_XZ * 2 + 1)) - PARTICLE_RADIUS_XZ;
+          const dy = Math.floor(Math.random() * (PARTICLE_RADIUS_Y * 2 + 1)) - PARTICLE_RADIUS_Y;
+          const dz = Math.floor(Math.random() * (PARTICLE_RADIUS_XZ * 2 + 1)) - PARTICLE_RADIUS_XZ;
+          const x = px + dx;
+          const y = py + dy;
+          const z = pz + dz;
+          let leaves;
+          try { leaves = dim.getBlock({ x, y, z }); } catch (_) { continue; }
+          if (!leaves || leaves.typeId !== MAGIC_LEAVES_ID) continue;
+          let below;
+          try { below = dim.getBlock({ x, y: y - 1, z }); } catch (_) { continue; }
+          if (!isPassableBelowLeaves(below)) continue;
+          if (Math.random() >= PARTICLE_SPAWN_CHANCE) continue;
+          const ox = x + 0.15 + Math.random() * 0.7;
+          const oz = z + 0.15 + Math.random() * 0.7;
+          const oy = y - 0.05;
+          try { dim.spawnParticle(MAGIC_PARTICLE_ID, { x: ox, y: oy, z: oz }); } catch (_) {}
+        }
+      }
+    } catch (_) {}
+  }, PARTICLE_INTERVAL_TICKS);
 } catch (_) {}
