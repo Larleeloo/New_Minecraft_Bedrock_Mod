@@ -10,11 +10,11 @@ const MAGIC_PARTICLE_ID = "lars:magic_oak_particle";
 // box around each player; if the block is leaves and the cell below it is
 // passable, emit one particle there. Keeps it visually subtle and avoids
 // scanning every leaf block every tick.
-const PARTICLE_INTERVAL_TICKS = 10;
-const PARTICLE_SAMPLES_PER_PLAYER = 24;
-const PARTICLE_RADIUS_XZ = 12;
-const PARTICLE_RADIUS_Y = 6;
-const PARTICLE_SPAWN_CHANCE = 0.5;
+const PARTICLE_INTERVAL_TICKS = 5;
+const PARTICLE_SAMPLES_PER_PLAYER = 64;
+const PARTICLE_RADIUS_XZ = 14;
+const PARTICLE_RADIUS_Y = 8;
+const PARTICLE_SPAWN_CHANCE = 0.85;
 
 // bellas_birch_edit is 15x25x15 with the trunk anchored at bottom-centre.
 // /structure load places the corner at the load position, so we shift back
