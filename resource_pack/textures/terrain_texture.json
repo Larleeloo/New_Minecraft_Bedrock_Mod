@@ -21,6 +21,9 @@
     },
     "magic_oak_leaf_litter": {
       "textures": "textures/blocks/magic_oak_leaf_litter"
+    },
+    "magic_oak_branch1": {
+      "textures": "textures/blocks/magic_oak_branch1_texture"
     }
   }
 }

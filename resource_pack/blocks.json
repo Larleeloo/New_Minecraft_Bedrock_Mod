@@ -14,5 +14,8 @@
   },
   "lars:magic_oak_leaf_litter": {
     "sound": "grass"
+  },
+  "lars:magic_oak_branch1": {
+    "sound": "wood"
   }
 }
