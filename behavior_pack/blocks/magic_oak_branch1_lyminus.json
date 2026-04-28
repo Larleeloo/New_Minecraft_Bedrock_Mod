@@ -2,7 +2,7 @@
   "format_version": "1.26.10",
   "minecraft:block": {
     "description": {
-      "identifier": "lars:magic_oak_branch1_lz",
+      "identifier": "lars:magic_oak_branch1_lyminus",
       "menu_category": {
         "category": "nature"
       },
@@ -24,7 +24,7 @@
       "minecraft:map_color": {
         "color": "#6B4F2A"
       },
-      "minecraft:geometry": "geometry.magic_oak_branch1_Lz",
+      "minecraft:geometry": "geometry.magic_oak_branch1_Lyminus",
       "minecraft:material_instances": {
         "*": {
           "texture": "magic_oak_branch1",

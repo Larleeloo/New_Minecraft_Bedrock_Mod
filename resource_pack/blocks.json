@@ -26,5 +26,11 @@
   },
   "lars:magic_oak_branch1_lz": {
     "sound": "wood"
+  },
+  "lars:magic_oak_branch1_lyplus": {
+    "sound": "wood"
+  },
+  "lars:magic_oak_branch1_lyminus": {
+    "sound": "wood"
   }
 }
