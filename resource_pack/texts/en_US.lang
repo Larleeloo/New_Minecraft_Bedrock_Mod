@@ -7,3 +7,5 @@ tile.lars:magic_oak_branch1.name=Magic Oak Branch
 tile.lars:magic_oak_branch1_4way.name=Magic Oak Branch (4-Way)
 tile.lars:magic_oak_branch1_lx.name=Magic Oak Branch (L-X)
 tile.lars:magic_oak_branch1_lz.name=Magic Oak Branch (L-Z)
+tile.lars:magic_oak_branch1_lyplus.name=Magic Oak Branch (L-Y+)
+tile.lars:magic_oak_branch1_lyminus.name=Magic Oak Branch (L-Y-)
