@@ -17,5 +17,14 @@
   },
   "lars:magic_oak_branch1": {
     "sound": "wood"
+  },
+  "lars:magic_oak_branch1_4way": {
+    "sound": "wood"
+  },
+  "lars:magic_oak_branch1_lx": {
+    "sound": "wood"
+  },
+  "lars:magic_oak_branch1_lz": {
+    "sound": "wood"
   }
 }

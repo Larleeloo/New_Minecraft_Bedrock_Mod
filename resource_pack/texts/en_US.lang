@@ -4,3 +4,6 @@ tile.lars:magic_oak_log.name=Magic Oak Log
 tile.lars:magic_oak_leaves.name=Magic Oak Leaves
 tile.lars:magic_oak_leaf_litter.name=Magic Oak Leaf Litter
 tile.lars:magic_oak_branch1.name=Magic Oak Branch
+tile.lars:magic_oak_branch1_4way.name=Magic Oak Branch (4-Way)
+tile.lars:magic_oak_branch1_lx.name=Magic Oak Branch (L-X)
+tile.lars:magic_oak_branch1_lz.name=Magic Oak Branch (L-Z)
