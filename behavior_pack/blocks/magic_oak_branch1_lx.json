@@ -7,8 +7,8 @@
         "category": "nature"
       },
       "traits": {
-        "minecraft:placement_direction": {
-          "enabled_states": ["minecraft:cardinal_direction"]
+        "minecraft:placement_position": {
+          "enabled_states": ["minecraft:block_face"]
         }
       }
     },
@@ -36,21 +36,15 @@
     },
     "permutations": [
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "condition": "q.block_state('minecraft:block_face') == 'east' || q.block_state('minecraft:block_face') == 'west'",
         "components": {
-          "minecraft:transformation": { "rotation": [0, 90, 0] }
+          "minecraft:transformation": { "rotation": [0, 0, 90] }
         }
       },
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "condition": "q.block_state('minecraft:block_face') == 'north' || q.block_state('minecraft:block_face') == 'south'",
         "components": {
-          "minecraft:transformation": { "rotation": [0, 180, 0] }
-        }
-      },
-      {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
-        "components": {
-          "minecraft:transformation": { "rotation": [0, 270, 0] }
+          "minecraft:transformation": { "rotation": [90, 0, 0] }
         }
       }
     ]
