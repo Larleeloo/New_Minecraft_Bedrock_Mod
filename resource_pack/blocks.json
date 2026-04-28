@@ -21,16 +21,10 @@
   "lars:magic_oak_branch1_4way": {
     "sound": "wood"
   },
-  "lars:magic_oak_branch1_lx": {
+  "lars:magic_oak_branch1_l_horizontal": {
     "sound": "wood"
   },
-  "lars:magic_oak_branch1_lz": {
-    "sound": "wood"
-  },
-  "lars:magic_oak_branch1_lyplus": {
-    "sound": "wood"
-  },
-  "lars:magic_oak_branch1_lyminus": {
+  "lars:magic_oak_branch1_l_vertical": {
     "sound": "wood"
   }
 }

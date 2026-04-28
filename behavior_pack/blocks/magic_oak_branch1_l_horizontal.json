@@ -2,13 +2,13 @@
   "format_version": "1.26.10",
   "minecraft:block": {
     "description": {
-      "identifier": "lars:magic_oak_branch1_lx",
+      "identifier": "lars:magic_oak_branch1_l_horizontal",
       "menu_category": {
         "category": "nature"
       },
       "traits": {
-        "minecraft:placement_position": {
-          "enabled_states": ["minecraft:block_face"]
+        "minecraft:placement_direction": {
+          "enabled_states": ["minecraft:cardinal_direction"]
         }
       }
     },
@@ -24,7 +24,7 @@
       "minecraft:map_color": {
         "color": "#6B4F2A"
       },
-      "minecraft:geometry": "geometry.magic_oak_branch1_lx",
+      "minecraft:geometry": "geometry.magic_oak_branch1_l_horizontal",
       "minecraft:material_instances": {
         "*": {
           "texture": "magic_oak_branch1",
@@ -36,15 +36,21 @@
     },
     "permutations": [
       {
-        "condition": "q.block_state('minecraft:block_face') == 'east' || q.block_state('minecraft:block_face') == 'west'",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
         "components": {
-          "minecraft:transformation": { "rotation": [0, 0, 90] }
+          "minecraft:transformation": { "rotation": [0, 90, 0] }
         }
       },
       {
-        "condition": "q.block_state('minecraft:block_face') == 'north' || q.block_state('minecraft:block_face') == 'south'",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
         "components": {
-          "minecraft:transformation": { "rotation": [90, 0, 0] }
+          "minecraft:transformation": { "rotation": [0, 180, 0] }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 270, 0] }
         }
       }
     ]
