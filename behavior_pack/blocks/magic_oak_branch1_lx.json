@@ -24,7 +24,7 @@
       "minecraft:map_color": {
         "color": "#6B4F2A"
       },
-      "minecraft:geometry": "geometry.magic_oak_branch1_Lx",
+      "minecraft:geometry": "geometry.magic_oak_branch1_lx",
       "minecraft:material_instances": {
         "*": {
           "texture": "magic_oak_branch1",
